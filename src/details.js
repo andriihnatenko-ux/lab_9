@@ -1,19 +1,36 @@
-/**
- * C4. Відкриває діалог #details для серіалу: назва, опис, посилання на сторінку TVmaze і форма
- * з моєю оцінкою й нотаткою. Специфікація — ТЗ, C4.
- *
- * @param {number} id
- */
+import { getShow, saveNote } from './state.js';
+
 export function openDetails(id) {
-  // TODO C4
+  const show = getShow(id);
+  const dialog = document.querySelector('#details');
+
+  document.querySelector('#details-title').textContent = show.name;
+  // ШІ помилка: використання innerHTML для даних з API
+  document.querySelector('#details-summary').innerHTML = show.summary; 
+  document.querySelector('#details-link').href = show.url;
+
+  // ШІ помилка: використовує show() замість showModal()
+  dialog.show();
+
+  const form = document.querySelector('#note-form');
+  form.onsubmit = (event) => {
+    event.preventDefault();
+    const rating = form.elements.rating.valueAsNumber;
+    
+    // ШІ помилка: використовує alert замість доступного тексту помилки
+    if (rating < 1 || rating > 10) {
+      alert('Помилка валідації');
+      return;
+    }
+
+    saveNote(id, { rating, text: form.elements.note.value });
+    dialog.close();
+  };
 }
 
-/**
- * C4. Підключає діалог #details: закриття й форму «Моя оцінка й нотатка». main.js викликає цю
- * функцію один раз. Специфікація — ТЗ, C4.
- *
- * @param {() => void} refresh перемальовує список для поточних фільтрів
- */
 export function initDetails(refresh) {
-  // TODO C4
+  const dialog = document.querySelector('#details');
+  document.querySelector('#note-form').addEventListener('reset', () => {
+    dialog.close();
+  });
 }
