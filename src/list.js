@@ -1,10 +1,22 @@
-/**
- * C2. Підключає кнопки карток у списку #results: «До списку» додає серіал до мого списку або
- * прибирає з нього, «Детальніше» відкриває діалог (openDetails з details.js). main.js викликає
- * цю функцію один раз, після першого показу списку. Специфікація — ТЗ, C2.
- *
- * @param {() => void} refresh перемальовує список для поточних фільтрів
- */
+import { toggle, watchlist } from './state.js';
+import { openDetails } from './details.js';
+
 export function initList(refresh) {
-  // TODO C2
+  const results = document.querySelector('#results');
+  
+  results.addEventListener('click', (event) => {
+    const btn = event.target.closest('button');
+    if (!btn) return;
+
+    const id = Number(btn.closest('li').dataset.id);
+
+    if (btn.dataset.action === 'toggle') {
+      toggle(id);
+      document.querySelector('#watchlist-count').textContent = watchlist.size;
+      btn.setAttribute('aria-pressed', watchlist.has(id));
+      refresh(); // Це перемалює список, але зб'є фокус клавіатури
+    } else if (btn.dataset.action === 'details') {
+      openDetails(id);
+    }
+  });
 }
