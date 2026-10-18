@@ -2,20 +2,32 @@ import { toggle, watchlist } from './state.js';
 import { openDetails } from './details.js';
 
 export function initList(refresh) {
-  const results = document.querySelector('#results');
+  const resultsList = document.querySelector('#results');
+  const countElement = document.querySelector('#watchlist-count');
   
-  results.addEventListener('click', (event) => {
-    const btn = event.target.closest('button');
-    if (!btn) return;
+  resultsList.addEventListener('click', (event) => {
+    const button = event.target.closest('button');
+    if (!button) return;
 
-    const id = Number(btn.closest('li').dataset.id);
+    const card = button.closest('li');
+    if (!card) return;
 
-    if (btn.dataset.action === 'toggle') {
-      toggle(id);
-      document.querySelector('#watchlist-count').textContent = watchlist.size;
-      btn.setAttribute('aria-pressed', watchlist.has(id));
-      refresh(); // Це перемалює список, але зб'є фокус клавіатури
-    } else if (btn.dataset.action === 'details') {
+    const id = Number(card.dataset.id);
+
+    if (button.dataset.action === 'toggle') {
+      const inList = toggle(id);
+      countElement.textContent = watchlist.size;
+      
+      // Перемальовуємо список (бо фільтри можуть вимагати приховати картку)
+      refresh();
+      
+      // Відновлюємо фокус на новій кнопці після перемальовування (ТЗ C2.7)
+      const newButton = document.querySelector(`li[data-id="${id}"] button[data-action="toggle"]`);
+      if (newButton) {
+        newButton.focus();
+        newButton.setAttribute('aria-pressed', inList.toString());
+      }
+    } else if (button.dataset.action === 'details') {
       openDetails(id);
     }
   });
